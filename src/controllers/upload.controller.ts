@@ -46,6 +46,33 @@ export class UploadController extends BaseController {
     return this.success({ url });
   }
 
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        imagem: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+    required: true,
+  })
+  @Post('/imagem-materia')
+  @UseInterceptors(FileInterceptor('imagem'))
+  async uploadImagemMateria(
+    @UploadedFile() imagem: Express.Multer.File,
+  ): Promise<ResponseSuccess<UploadResponse>> {
+    const url = await this.uploadService.uploadFile(
+      `imagems-materia/${this.gerarNomeArquivo(imagem.originalname)}`,
+      imagem.buffer,
+      imagem.mimetype,
+    );
+
+    return this.success({ url });
+  }
+
   private gerarNomeArquivo(fileName: string): string {
     const fileNameSplitado = fileName.split('.');
     const extensao = fileNameSplitado[fileNameSplitado.length - 1];
